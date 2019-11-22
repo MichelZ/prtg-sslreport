@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <ValueLookup id="michelz.lookup.qualys.grade" desiredValue="0" undefinedState="olsWarning" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="PaeValueLookup.xsd">
+    <Lookups>
+      <SingleInt state="Ok" value="0">A+</SingleInt>
+      <SingleInt state="Ok" value="1">A</SingleInt>
+      <SingleInt state="Ok" value="2">A-</SingleInt>
+      <SingleInt state="Warning" value="3">B</SingleInt>
+      <SingleInt state="Warning" value="4">C</SingleInt>
+      <SingleInt state="Error" value="5">D</SingleInt>
+      <SingleInt state="Error" value="6">E</SingleInt>
+      <SingleInt state="Error" value="7">F</SingleInt>
+      <SingleInt state="Error" value="8">Trust Error</SingleInt>
+      <SingleInt state="Error" value="9">Name Mismatch</SingleInt>
+    </Lookups>
+  </ValueLookup>
