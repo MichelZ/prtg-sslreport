@@ -130,6 +130,9 @@ function Get-SSLReport {
         $cacheString = "&fromCache=on&maxAge=$MaxCacheAgeHours"
     }
 
+    # Enforce TLS 1.2 use for compatibility
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    
     # Send the WebRequest
     $result = Invoke-WebRequest -UseBasicParsing -Uri "https://api.ssllabs.com/api/v3/analyze?host=$ServerName$cacheString" -TimeoutSec $TimeoutSeconds -Method Get
 
