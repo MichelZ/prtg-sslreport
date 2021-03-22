@@ -32,14 +32,15 @@ None. You cannot pipe objects to Get-SSLReport
 
 System.String. Get-SSLReport returns a JSON string with information about the Test Results for the ServerName specified
 For details, see here: https://github.com/ssllabs/ssllabs-scan/blob/master/ssllabs-api-docs-v3.md#host
-You can easily parse this using `Get-SSLReport -host example.com | ConvertTo-Json`
+You can easily parse this using `Get-SSLReport -servername example.com | ConvertTo-Json`
 
 .NOTES
 2019-11-22  Version 0.1   Initial Version
+2021-03-19  Version 0.1.1 Updated input from "host" to match parameter name of function "ServerName"
 
 .EXAMPLE
 
-PS> Get-SSLReport -host "microsoft.com"
+PS> Get-SSLReport -servername "microsoft.com"
 {
   "host": "microsoft.com",
   "port": 443,
