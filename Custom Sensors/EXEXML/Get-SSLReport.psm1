@@ -37,6 +37,7 @@ You can easily parse this using `Get-SSLReport -servername example.com | Convert
 .NOTES
 2019-11-22  Version 0.1   Initial Version
 2021-03-19  Version 0.1.1 Updated input from "host" to match parameter name of function "ServerName"
+2022-06-07  Version 0.1.2 Updated error handling
 
 .EXAMPLE
 
@@ -125,32 +126,42 @@ function Get-SSLReport {
     # Construct the URI part for Caching
     if ($MaxCacheAgeHours -eq 0)
     {
-        $cacheString = "&fromCache=off"
+        $cacheString = "&startNew=on"
     } else {
         $cacheString = "&fromCache=on&maxAge=$MaxCacheAgeHours"
     }
 
     # Enforce TLS 1.2 use for compatibility
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    
-    # Send the WebRequest
-    $result = Invoke-WebRequest -UseBasicParsing -Uri "https://api.ssllabs.com/api/v3/analyze?host=$ServerName$cacheString" -TimeoutSec $TimeoutSeconds -Method Get
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
-    # Error out if we don't have a 200 OK status code
-    if ($result.StatusCode -ne 200)
-    {
-        throw "STATUS: $($result.StatusCode) ERROR: $($result.Content)"
-    }
+    try {
+      $result = Invoke-WebRequest -UseBasicParsing -Uri "https://api.ssllabs.com/api/v3/analyze?host=$ServerName$cacheString" -TimeoutSec $TimeoutSeconds -Method Get
+    } catch [System.Net.WebException] {
+      $r = $_.Exception
+      switch ($r.Response.StatusCode)
+      {
+        200 { }
+        429 { throw "STATUS: $($r.Response.StatusCode) ERROR: throttled." }
+        500 { throw "STATUS: $($r.Response.StatusCode) ERROR: internal error. $($r.Response.Content)"}
+        503 { throw "STATUS: $($r.Response.StatusCode) ERROR: the service is not available."}
+        529 { throw "STATUS: $($r.Response.StatusCode) ERROR: the service is overloaded."}
+        default { throw "STATUS: $($r.Response.StatusCode) ERROR: $($r.Response.Content)" }
+      }
+  }
 
     $parsed = $result.Content | ConvertFrom-Json
     
     switch ($parsed.status)
     {
-        "IN_PROGRESS" { start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
-        "DNS" { start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
+        "IN_PROGRESS" { 
+          Write-Verbose "Scan is in progress. Waiting."
+          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
+        "DNS" { 
+          Write-Verbose "Scan is in progress. Waiting."
+          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
         "ERROR" { 
             throw $parsed.statusMessage
-         }
+        }
         "READY" {
             return $result.Content
         }

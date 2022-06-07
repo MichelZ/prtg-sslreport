@@ -35,37 +35,37 @@ System.String. A JSON string that PRTG can understand as a custom sensor
 PS> .\QualysSSLReport.ps1 -ServerName microsoft.com
 {
     "prtg":  [
-                 {
-                     "channel":  "40.76.4.15",
-                     "value":  3,
-                     "warning":  "0",
-                     "notifychanged":  "1"
-                 },
-                 {
-                     "channel":  "40.113.200.201",
-                     "value":  3,
-                     "warning":  "0",
-                     "notifychanged":  "1"
-                 },
-                 {
-                     "channel":  "104.215.148.63",
-                     "value":  3,
-                     "warning":  "0",
-                     "notifychanged":  "1"
-                 },
-                 {
-                     "channel":  "40.112.72.205",
-                     "value":  3,
-                     "warning":  "0",
-                     "notifychanged":  "1"
-                 },
-                 {
-                     "channel":  "13.77.161.179",
-                     "value":  3,
-                     "warning":  "0",
-                     "notifychanged":  "1"
-                 }
-             ]
+                {
+                    "channel":  "40.76.4.15",
+                    "value":  3,
+                    "warning":  "0",
+                    "notifychanged":  "1"
+                },
+                {
+                    "channel":  "40.113.200.201",
+                    "value":  3,
+                    "warning":  "0",
+                    "notifychanged":  "1"
+                },
+                {
+                    "channel":  "104.215.148.63",
+                    "value":  3,
+                    "warning":  "0",
+                    "notifychanged":  "1"
+                },
+                {
+                    "channel":  "40.112.72.205",
+                    "value":  3,
+                    "warning":  "0",
+                    "notifychanged":  "1"
+                },
+                {
+                    "channel":  "13.77.161.179",
+                    "value":  3,
+                    "warning":  "0",
+                    "notifychanged":  "1"
+                }
+            ]
 }
 
 .LINK
@@ -84,8 +84,8 @@ Import-Module $PSScriptRoot\Get-SSLReport.psm1
 
 function Get-SSLGradeValue {
     param(
-         [Parameter(Mandatory=$true)]
-         [string]$Grade
+        [Parameter(Mandatory=$true)]
+        [string]$Grade
     )
 
     switch ($Grade)
@@ -106,20 +106,6 @@ function Get-SSLGradeValue {
 
 try {
     $result = Get-SSLReport -ServerName $ServerName -TimeoutSeconds $TimeoutSeconds -MaxCacheAgeHours $MaxCacheAgeHours
-} catch [System.Net.WebException] {
-    $r = $_.Exception
-
-    $errorobject = [pscustomobject]@{
-        'error'='1';
-        'text'="STATUS: $($r.Response.StatusCode) CONTENT: $($r.Response.Content)";
-    }
-
-    $prtg = [pscustomobject]@{
-        prtg = $errorobject
-    }
-
-    Write-Host ($prtg | ConvertTo-Json);
-    return
 } catch {
     $r = $_.Exception
 
