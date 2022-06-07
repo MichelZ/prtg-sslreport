@@ -38,6 +38,7 @@ You can easily parse this using `Get-SSLReport -servername example.com | Convert
 2019-11-22  Version 0.1   Initial Version
 2021-03-19  Version 0.1.1 Updated input from "host" to match parameter name of function "ServerName"
 2022-06-07  Version 0.1.2 Updated error handling
+2022-06-07  Version 0.1.3 Improve cache behavior
 
 .EXAMPLE
 
@@ -124,9 +125,11 @@ function Get-SSLReport {
     )
 
     # Construct the URI part for Caching
-    if ($MaxCacheAgeHours -eq 0)
-    {
+    if ($MaxCacheAgeHours -eq 0) {
+        $MaxCacheAgeHours -eq 1
         $cacheString = "&startNew=on"
+    } elseif ($MaxCacheAgeHours -lt 0) {
+        $cacheString = ""
     } else {
         $cacheString = "&fromCache=on&maxAge=$MaxCacheAgeHours"
     }
@@ -155,10 +158,10 @@ function Get-SSLReport {
     {
         "IN_PROGRESS" { 
           Write-Verbose "Scan is in progress. Waiting."
-          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
+          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge -1 -timeoutSec $timeoutSec }
         "DNS" { 
           Write-Verbose "Scan is in progress. Waiting."
-          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge $maxCacheAge -timeoutSec $timeoutSec }
+          start-sleep -Seconds 10; return Get-SSLReport -serverName $serverName -maxCacheAge -1 -timeoutSec $timeoutSec }
         "ERROR" { 
             throw $parsed.statusMessage
         }

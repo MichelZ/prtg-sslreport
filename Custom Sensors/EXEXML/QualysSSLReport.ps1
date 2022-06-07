@@ -29,6 +29,7 @@ System.String. A JSON string that PRTG can understand as a custom sensor
 
 .NOTES
 2019-11-22  Version 0.1   Initial Version
+2022-06-07  Version 0.1.2 Updated error handling
 
 .EXAMPLE
 
